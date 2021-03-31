@@ -20,7 +20,9 @@ public class ChimpSteps {
 
 	@Given("I have entered an email")
 	public void i_have_entered_an_email() {
-		driver.findElement(By.id("email")).sendKeys("henrik.odfors@smaif.se");
+		//driver.findElement(By.id("email")).sendKeys("henrik.odfors@smaif.se");
+		driver.findElement(By.id("email")).sendKeys("forgetat");
+			
 	}
 
 	@And("I have also entered an username")
@@ -42,6 +44,25 @@ public class ChimpSteps {
 	@When("I press Sign Up")
 	public void i_press_sign_up() {
 		driver.findElement(By.cssSelector("button[id=create-account]")).submit();
+		
+		String noAtSignEmail = driver.findElement(By.cssSelector(".invalid-error")).getText();
+		String noDomainEmail = driver.findElement(By.cssSelector(".invalid-error")).getText();
+		String noNameBeforeAtEmail = driver.findElement(By.cssSelector(".invalid-error")).getText();
+		String noEmail = driver.findElement(By.cssSelector("span[class=invalid-error]")).getText();
+		assertEquals("An email address must contain a single @", noAtSignEmail);
+		assertEquals("The domain portion of the email address is invalid", noDomainEmail);
+		assertEquals("The username portion of the email address is empty", noNameBeforeAtEmail);
+		assertEquals("Please enter a value", noEmail);
+		
+		String dupeUser = driver.findElement(By.cssSelector(".invalid-error")).getText();
+		String longUser = driver.findElement(By.cssSelector(".invalid-error")).getText();
+		String notValidFormatUser = driver.findElement(By.cssSelector(".invalid-error")).getText();
+		String noUser = driver.findElement(By.cssSelector("span[class=invalid-error]")).getText();
+		assertEquals("Another user with this username already exists. Maybe it's your evil twin. Spooky.", dupeUser);
+		assertEquals("Enter a value less than 100 characters long", longUser);
+		assertEquals("Your username should either be an email address or consist of letters and numbers.", notValidFormatUser);
+		assertEquals("Please enter a value", noUser);
+		
 	}
 
 	@Then("the result should be at a verification page")
