@@ -15,7 +15,7 @@ public class ChimpSteps {
 		DriverCreator creator = new DriverCreator();  
 		driver = creator.createBrowser("edge");
 		driver.navigate().to("https://login.mailchimp.com/signup/");
-		//driver.manage().window().maximize();
+		///driver.manage().window().maximize();
 	}
 
 	@Given("I have entered an email")

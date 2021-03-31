@@ -1,4 +1,5 @@
 Feature: Feature to test signup at MailChimp
+## let's do this!
 
 	@chimps
   Scenario: Signup at MailChimp
