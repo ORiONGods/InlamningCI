@@ -2,16 +2,20 @@ Feature: Feature to test signup at MailChimp
 
   @chimps
   Scenario Outline: Signup at MailChimp
-    Given I have entered an "<email>"
-    And I have also entered an "<username>"
-    And I have also entered a "<password>"
-    And I do not want to have any spams
+    Given I have entered an "<EMAIL>"
+    And I have also entered an "<USERNAME>"
+    And I have also entered a "<PASSWORD>"
+    And I say no to spam but yes to cookies
     When I press Sign Up
-    Then I will "<verify>"
+    Then I will "<VERIFY>"
 
     Examples: 
-      | email  | username  | password | verify      |
-      | nobody | ORiONGods | aQ!23456 | allgood     |
-      | nobody | longUser  | aQ!23456 | uptohundred |
-      | nobody | trump     | aQ!23456 | exists      |
-      |        | ORiONGods | aQ!23456 | empty       |
+      | EMAIL  | USERNAME | PASSWORD | VERIFY      |
+      | valid  | valid    | aQ!23456 | allGood     |
+      | valid  | longUser | aQ!23456 | hundredLong |
+      | valid  | trump    | aQ!23456 | userExists  |
+      | badAt  | valid    | aQ!23456 | noAtSign    |
+      | domain | valid    | aQ!23456 | noDomain    |
+      | noUser | valid    | aQ!23456 | noUserPart  |
+      | valid  |          | aQ!23456 | empty       |
+      |        | valid    | aQ!23456 | empty       |
