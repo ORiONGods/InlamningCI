@@ -14,6 +14,10 @@ import io.cucumber.java.en.*;
 
 public class ChimpSteps {
 	private WebDriver driver;
+	By txt_email = By.id("email");
+	By txt_user = By.id("new_username");
+	By txt_pass = By.name("password");
+	By txt_error = By.cssSelector(".invalid-error");
 	String allGood = "Success | Mailchimp";
 	String hundredLong = "Enter a value less than 100 characters long";
 	String userExists = "Another user with this username already exists. Maybe it's your evil twin. Spooky.";
@@ -21,9 +25,6 @@ public class ChimpSteps {
 	String noAtSign = "An email address must contain a single @";
 	String noDomain = "The domain portion of the email address is invalid";
 	String noUserPart = "The username portion of the email address is empty";
-	//String emptyUser = "Please enter a value";
-
-
 
 	@Before
 	public void openBrowser() throws InterruptedException {
@@ -36,15 +37,15 @@ public class ChimpSteps {
 	@Given("I have entered an {string}")
 	public void i_have_entered_an_email(String theEmail) {
 		if(theEmail.equals("valid")) {  // Valid email input
-			sendKeys(driver, By.id("email"), randomUser(6) + "@smaif.se");
+			sendKeys(driver, txt_email, randomUser(6) + "@smaif.se");
 		} else if(theEmail.equals("")) {
-			sendKeys(driver, By.id("email"), "");
+			sendKeys(driver, txt_email, "");
 		} else if(theEmail.equals("badAt")) {
-			sendKeys(driver, By.id("email"), randomUser(6));
+			sendKeys(driver, txt_email, randomUser(6));
 		} else if(theEmail.equals("noUser")) {
-			sendKeys(driver, By.id("email"), "@smaif.se");
+			sendKeys(driver, txt_email, "@smaif.se");
 		} else if(theEmail.equals("domain")) {
-			sendKeys(driver, By.id("email"), randomUser(6) + "@.se");
+			sendKeys(driver, txt_email, randomUser(6) + "@.se");
 			noDomain += " (the portion after the @: .se)";
 		}
 	}
@@ -52,20 +53,20 @@ public class ChimpSteps {
 	@And("I have also entered an {string}")
 	public void i_have_also_entered_an_username(String theUsername) {
 		if(theUsername.equals("valid")) { // Valid username input
-			sendKeys(driver, By.id("new_username"), randomUser(8));
+			sendKeys(driver, txt_user, randomUser(8));
 		} else if(theUsername.equals("longUser")) {
-			sendKeys(driver, By.id("new_username"), randomUser(100));
+			sendKeys(driver, txt_user, randomUser(100));
 		} else if(theUsername.equals("trump")) { // Known dupe
-			sendKeys(driver, By.id("new_username"), "trump");
+			sendKeys(driver, txt_user, "trump");
 		} else if(theUsername.equals("")) { 
-			sendKeys(driver, By.id("new_username"), "");
+			sendKeys(driver, txt_user, "");
 		}
 
 	}
 
 	@And("I have also entered a {string}")
 	public void i_have_also_entered_a_(String thePassword) {
-		sendKeys(driver, By.name("password"), "aQ!23456");		
+		sendKeys(driver, txt_pass, "aQ!23456");		
 	}
 
 	@And("I say no to spam but yes to cookies")
@@ -78,7 +79,7 @@ public class ChimpSteps {
 	@When("I press Sign Up")
 	public void i_press_sign_up() throws InterruptedException {
 		driver.findElement(By.cssSelector("button[id=create-account]")).submit();
-		Thread.sleep(1500);
+		Thread.sleep(1000);
 	}
 
 	@Then("I will {string}")
@@ -88,19 +89,19 @@ public class ChimpSteps {
 		if(verify.equals("allGood")) {
 			assertEquals(allGood, driver.getTitle());
 		} else if(verify.equals("hundredLong")) {
-			assertEquals(hundredLong, driver.findElement(By.cssSelector(".invalid-error")).getText());
+			assertEquals(hundredLong, driver.findElement(txt_error).getText());
 		} else if(verify.equals("userExists")) {
-			assertEquals(userExists, driver.findElement(By.cssSelector(".invalid-error")).getText());
+			assertEquals(userExists, driver.findElement(txt_error).getText());
 		} else if(verify.equals("empty")) {
-			if(driver.findElement(By.id("email")).getText()=="" || driver.findElement(By.id("new_username")).getText()=="") {
-				assertEquals(empty, driver.findElement(By.cssSelector("span[class=invalid-error]")).getText());
+			if(driver.findElement(txt_email).getText()=="" || driver.findElement(txt_user).getText()=="") {
+				assertEquals(empty, driver.findElement(txt_error).getText());
 			}
 		} else if(verify.equals("noAtSign")) {
-			assertEquals(noAtSign, driver.findElement(By.cssSelector(".invalid-error")).getText());
+			assertEquals(noAtSign, driver.findElement(txt_error).getText());
 		} else if(verify.equals("noDomain")) {
-			assertEquals(noDomain, driver.findElement(By.cssSelector(".invalid-error")).getText());
+			assertEquals(noDomain, driver.findElement(txt_error).getText());
 		} else if(verify.equals("noUserPart")) {
-			assertEquals(noUserPart, driver.findElement(By.cssSelector(".invalid-error")).getText());
+			assertEquals(noUserPart, driver.findElement(txt_error).getText());
 		}
 	}
 
