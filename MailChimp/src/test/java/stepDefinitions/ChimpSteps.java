@@ -4,11 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.time.Duration;
 import java.util.Random;
-
 import org.openqa.selenium.*;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
+import org.openqa.selenium.support.ui.*;
 import io.cucumber.java.*;
 import io.cucumber.java.en.*;
 
@@ -21,7 +18,7 @@ public class ChimpSteps {
 	String allGood = "Success | Mailchimp";
 	String hundredLong = "Enter a value less than 100 characters long";
 	String userExists = "Another user with this username already exists. Maybe it's your evil twin. Spooky.";
-	String empty = "Please enter a value";
+	String someEmpty = "Please enter a value";
 	String noAtSign = "An email address must contain a single @";
 	String noDomain = "The domain portion of the email address is invalid";
 	String noUserPart = "The username portion of the email address is empty";
@@ -29,14 +26,14 @@ public class ChimpSteps {
 	@Before
 	public void openBrowser() throws InterruptedException {
 		DriverCreator creator = new DriverCreator();  
-		driver = creator.createBrowser("edge");
+		driver = creator.createBrowser("chrome");    //valids: chrome, firefox, edge, opera, safari
 		driver.navigate().to("https://login.mailchimp.com/signup/");
 		//driver.manage().window().maximize();
 	}
 
 	@Given("I have entered an {string}")
 	public void i_have_entered_an_email(String theEmail) {
-		if(theEmail.equals("valid")) {  // Valid email input
+		if(theEmail.equals("valid")) {   // Valid email input
 			sendKeys(driver, txt_email, randomUser(6) + "@smaif.se");
 		} else if(theEmail.equals("")) {
 			sendKeys(driver, txt_email, "");
@@ -46,22 +43,21 @@ public class ChimpSteps {
 			sendKeys(driver, txt_email, "@smaif.se");
 		} else if(theEmail.equals("domain")) {
 			sendKeys(driver, txt_email, randomUser(6) + "@.se");
-			noDomain += " (the portion after the @: .se)";
+			noDomain += " (the portion after the @: .se)";   //how to use RegEx here?!
 		}
 	}
 
 	@And("I have also entered an {string}")
 	public void i_have_also_entered_an_username(String theUsername) {
-		if(theUsername.equals("valid")) { // Valid username input
+		if(theUsername.equals("valid")) {   // Valid username input
 			sendKeys(driver, txt_user, randomUser(8));
 		} else if(theUsername.equals("longUser")) {
 			sendKeys(driver, txt_user, randomUser(100));
-		} else if(theUsername.equals("trump")) { // Known dupe
+		} else if(theUsername.equals("trump")) {  // Known dupe
 			sendKeys(driver, txt_user, "trump");
 		} else if(theUsername.equals("")) { 
 			sendKeys(driver, txt_user, "");
 		}
-
 	}
 
 	@And("I have also entered a {string}")
@@ -73,36 +69,50 @@ public class ChimpSteps {
 	public void i_say_no_to_spam_but_yes_to_cookies() throws InterruptedException {
 		click(driver, By.cssSelector("input[name=marketing_newsletter]"));
 		click(driver, By.cssSelector("#onetrust-accept-btn-handler"));
-		//Thread.sleep(1500);
 	}
+
 
 	@When("I press Sign Up")
 	public void i_press_sign_up() throws InterruptedException {
-		driver.findElement(By.cssSelector("button[id=create-account]")).submit();
-		Thread.sleep(1000);
+		submitBtn(driver, By.cssSelector("button[id=create-account]"));
 	}
 
-	@Then("I will {string}")
-	public void i_will(String verify)  throws InterruptedException {
-
+	@Then("I will check for {string}")
+	public void i_will_check_for(String verify)  throws InterruptedException {
+		
+		String expected = "";
+		String actual = "";
 
 		if(verify.equals("allGood")) {
-			assertEquals(allGood, driver.getTitle());
-		} else if(verify.equals("hundredLong")) {
-			assertEquals(hundredLong, driver.findElement(txt_error).getText());
-		} else if(verify.equals("userExists")) {
-			assertEquals(userExists, driver.findElement(txt_error).getText());
-		} else if(verify.equals("empty")) {
-			if(driver.findElement(txt_email).getText()=="" || driver.findElement(txt_user).getText()=="") {
-				assertEquals(empty, driver.findElement(txt_error).getText());
-			}
-		} else if(verify.equals("noAtSign")) {
-			assertEquals(noAtSign, driver.findElement(txt_error).getText());
-		} else if(verify.equals("noDomain")) {
-			assertEquals(noDomain, driver.findElement(txt_error).getText());
-		} else if(verify.equals("noUserPart")) {
-			assertEquals(noUserPart, driver.findElement(txt_error).getText());
+			titleWait(driver, allGood);
+			expected = allGood;
+			actual = driver.getTitle();	
 		}
+		else {
+			if(verify.equals("hundredLong")) {
+				someWait(driver, txt_error);
+				expected = hundredLong;
+			} else if(verify.equals("userExists")) {
+				someWait(driver, txt_error);
+				expected = userExists;
+			}  else if(verify.equals("noAtSign")) {
+				someWait(driver, txt_error);
+				expected = noAtSign;
+			} else if(verify.equals("noDomain")) {
+				someWait(driver, txt_error);
+				expected = noDomain;
+			} else if(verify.equals("noUserPart")) {
+				someWait(driver, txt_error);
+				expected = noUserPart;
+			} else if(verify.equals("someEmpty")) {
+				if(driver.findElement(txt_email).getText()=="" || driver.findElement(txt_user).getText()=="") {
+					someWait(driver, txt_error);
+					expected = someEmpty;
+				}
+			}
+			actual = driver.findElement(txt_error).getText();
+		}
+		assertEquals(expected, actual);
 	}
 
 	@After
@@ -116,26 +126,41 @@ public class ChimpSteps {
 				elementToBeClickable(by));
 		driver.findElement(by).click();
 	}
+	
+	private void submitBtn(WebDriver driver, By by) {
+		new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.
+				elementToBeClickable(by));
+		driver.findElement(by).submit();
+	}
 
 	private void sendKeys(WebDriver driver, By by, String keys) {		
 		new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.presenceOfElementLocated(by));
 		driver.findElement(by).sendKeys(keys);
 	}
+	
+	private void someWait(WebDriver driver, By by) {		
+		new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.presenceOfElementLocated(by));
+	}
+	
+	private void titleWait(WebDriver driver, String title) {		
+		new WebDriverWait(driver, Duration.ofSeconds(10)).until(ExpectedConditions.titleContains(allGood));
+	}
+	
 
 	private String randomUser(int howLong) {
 		Random r = new Random();
 		String userName = "";
 		char c = 0;
 		int sum = 0;
-		for(int i=0;i<howLong;i++) {
+		for(int i=0;i<howLong;i++) {   //Create a xx chars long Username
 			if(i==0) {
-				c = (char) (r.nextInt(26) + 'A');
+				c = (char) (r.nextInt(26) + 'A');   //First char is UPPERCASE
 			} else {
 				c = (char) (r.nextInt(26) + 'a');
 			}
 			userName = userName + c;
 		}
-		for(int i=0;i<userName.length();i++) {
+		for(int i=0;i<userName.length();i++) {    //Then calculate a checksum. Char*index
 			char ch = userName.charAt(i);
 			sum+=(int)ch*(i+1);
 		}

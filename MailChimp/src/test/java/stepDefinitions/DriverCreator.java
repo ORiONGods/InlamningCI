@@ -4,6 +4,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.*;
 import org.openqa.selenium.firefox.*;
 import org.openqa.selenium.opera.*;
+import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.edge.*;
 
 public class DriverCreator {
@@ -24,6 +25,8 @@ public class DriverCreator {
 			} else if(browser.equals("opera")) {
 				System.setProperty("webdriver.opera.driver", projectPath+"/src/test/resources/drivers/operadriver.exe");
 				driver = new OperaDriver();
+			} else if(browser.equals("safari")) {
+				driver = new SafariDriver();
 			}
 			
 			return driver;
